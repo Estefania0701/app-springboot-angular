@@ -29,7 +29,10 @@ public class EmpleadoControlador {
     @Autowired
     private EmpleadoRepositorio repositorio;
 
-    // Se ejecutará cuando se realice una solicitud GET a la ruta /empleados
+    // Devuelve el listado de empleados
+    /* Se ejecutará cuando se realice una solicitud GET a la ruta /empleados
+    O sea, cuando se ejecute el método obtenerListaDeEmpleados() de
+    empleado.service.ts */
     @GetMapping("/empleados")
     public List<Empleado> listarTodosLosEmpleados(){
         /*Llamo al método findAll() del repositorio de empleados, que devuelve
@@ -37,8 +40,10 @@ public class EmpleadoControlador {
         return repositorio.findAll();
     }
 
-    // Guarda un empleado
-    // Se ejecutará cuando se realice una solicitud POST a la ruta /empleados
+    // Guarda un nuevo empleado
+    /* Se ejecutará cuando se realice una solicitud POST a la ruta /empleados
+    O sea, cuando se ejecute el método registrarEmpleado(empleado : Empleado)
+    de empleado.service.ts */
     @PostMapping("/empleados")
     /* La anotación @RequestBody indica que el cuerpo de la solicitud HTTP se
     debe deserializar en un objeto Empleado y asignarlo al parámetro empleado.*/
