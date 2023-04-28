@@ -6,9 +6,11 @@ del repositorio.*/
 
 package com.gestion.empleados.controlador;
 
+import com.gestion.empleados.excepciones.ResourceNotFoundException;
 import com.gestion.empleados.modelo.Empleado;
 import com.gestion.empleados.repositorio.EmpleadoRepositorio;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -52,6 +54,43 @@ public class EmpleadoControlador {
         JPA y se encarga de persistir o actualizar el objeto en la base de datos.*/
         return repositorio.save(empleado);
     }
+
+    // Devuelve el objeto empleado, indicando que la solicitud fue exitosa
+    /* Se ejecutará cuando se realice una solicitud GET a la ruta /empleados/{id}
+    O sea, cuando se ejecute el método XXXXXXXX de
+    empleado.service.ts */
+    @GetMapping("/empleados/{id}")
+    /* Toma el ID del empleado como parámetro de tipo Long anotado con
+    @PathVariable. Esta anotación indica que el valor del parámetro se tomará
+    de la parte de la URL correspondiente al {id}*/
+    public ResponseEntity<Empleado> obtenerEmpleadoPorId(@PathVariable Long id) {
+        Empleado empleado = repositorio.findById(id) // VER ABAJO ORELSETHROW
+                            .orElseThrow(() -> new ResourceNotFoundException("No existe el empleado con el ID : " + id));
+        return ResponseEntity.ok(empleado);
+    }
+
+    // Actualiza el empleado y lo devuelve actualizado, indicando que la solicitud fue exitosa
+    /* Se ejecutará cuando se realice una solicitud PUT a la ruta /empleados/{id}
+    O sea, cuando se ejecute el método XXXXXXXX de
+    empleado.service.ts */
+    @PutMapping("/empleados/{id}")
+    public ResponseEntity<Empleado> actualizarEmpleado(@PathVariable Long id, @RequestBody Empleado detallesEmpleado) {
+        Empleado empleado = repositorio.findById(id) // VER ABAJO ORELSETHROW
+                .orElseThrow(() -> new ResourceNotFoundException("No existe el empleado con el ID : " + id));
+
+        /* Actualizo las propiedades del objeto empleado con los valores
+        proporcionados en el objeto detallesEmpleado*/
+        empleado.setNombre(detallesEmpleado.getNombre());
+        empleado.setApellido(detallesEmpleado.getApellido());
+        empleado.setEmail(detallesEmpleado.getEmail());
+
+        /* Guardo los cambios realizados en el objeto empleado en la base de
+        datos. El método save() se encarga de persistir o actualizar el objeto
+        en la base de datos y devuelve el empleado actualizado.*/
+        Empleado empleadoActualizado = repositorio.save(empleado);
+
+        return ResponseEntity.ok(empleadoActualizado);
+    }
 }
 
 /*
@@ -73,4 +112,18 @@ de SOP.
 La anotación @CrossOrigin resuelve este problema al permitir que el servidor
 de Spring Boot envíe las cabeceras de Control de Acceso HTTP (CORS) necesarias
 para habilitar el acceso desde el origen especificado. En este caso, el origen
-especificado es http://localhost:4200.*/
+especificado es http://localhost:4200.
+
+------------------------------ ORELSETHROW() --------------------------------
+
+En Java, el método .orElseThrow() es parte de la interfaz Optional, que se
+utiliza para representar valores opcionales que pueden o no estar presentes.
+La idea detrás de Optional es evitar el manejo explícito de valores nulos y
+proporcionar una forma más segura y legible de trabajar con valores que
+podrían ser nulos.
+
+El método .orElseThrow() se utiliza para obtener el valor contenido dentro de
+un Optional. Si el Optional está vacío, es decir, no contiene ningún valor,
+se lanza una excepción especificada. Si el Optional contiene un valor, se
+devuelve ese valor.
+*/
