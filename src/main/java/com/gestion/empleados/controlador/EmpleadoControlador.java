@@ -13,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /*Se define la clase EmpleadoControlador como un controlador REST utilizando la
 anotación @RestController. La anotación @RequestMapping establece la URL base
@@ -71,11 +73,10 @@ public class EmpleadoControlador {
 
     // Actualiza el empleado y lo devuelve actualizado, indicando que la solicitud fue exitosa
     /* Se ejecutará cuando se realice una solicitud PUT a la ruta /empleados/{id}
-    O sea, cuando se ejecute el método XXXXXXXX de
-    empleado.service.ts */
+    O sea, cuando se ejecute el método actualizarEmpleado de empleado.service.ts */
     @PutMapping("/empleados/{id}")
-    public ResponseEntity<Empleado> actualizarEmpleado(@PathVariable Long id, @RequestBody Empleado detallesEmpleado) {
-        Empleado empleado = repositorio.findById(id) // VER ABAJO ORELSETHROW
+    public ResponseEntity<Empleado> actualizarEmpleado (@PathVariable Long id, @RequestBody Empleado detallesEmpleado) {
+        Empleado empleado = repositorio.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No existe el empleado con el ID : " + id));
 
         /* Actualizo las propiedades del objeto empleado con los valores
@@ -90,6 +91,29 @@ public class EmpleadoControlador {
         Empleado empleadoActualizado = repositorio.save(empleado);
 
         return ResponseEntity.ok(empleadoActualizado);
+    }
+
+    // Elimina un empleado, indicando que la solicitud fue exitosa
+    /* Se ejecutará cuando se realice una solicitud DELETE a la ruta /empleados/{id}
+    O sea, cuando se ejecute el método eliminarEmpleado de empleado.service.ts */
+    @DeleteMapping("/empleados/{id}")
+    public ResponseEntity<Map<String, Boolean>> eliminarEmpleado (@PathVariable Long id) {
+        Empleado empleado = repositorio.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe el empleado con el ID : " + id));
+
+        // elimino el empleado de la base de datos
+        repositorio.delete(empleado);
+
+        // Creo un hashMap que almacenará la respuesta de la eliminación del empleado
+        Map<String, Boolean> respuesta = new HashMap<>();
+
+        /* Se agrega una entrada al mapa respuesta. La clave es "eliminar"
+        y el valor es Boolean.TRUE, que indica que el empleado ha sido
+        eliminado correctamente.*/
+        respuesta.put("eliminar", Boolean.TRUE);
+
+        // Retorno respuesta exitosa junto con el mapa respuesta
+        return ResponseEntity.ok(respuesta);
     }
 }
 
